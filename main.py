@@ -2,6 +2,8 @@ import tkinter as tk
 import tkinter.messagebox as messagebox
 import mysql.connector
 
+#make a class to ensure all different function are able to be accessed within each other
+
 class OnlineBankingApp:
     def __init__(self, master):
         self.master = master
@@ -60,6 +62,8 @@ class OnlineBankingApp:
 
         # Create a button to create a new account
         self.create_button = tk.Button(self.master, text="Create Account", command=self.create_account)
+
+
 
               
             
