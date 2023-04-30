@@ -51,6 +51,13 @@ class OnlineBankingApp:
       # Create a button to close an account
         self.close_account_button = tk.Button(self.master, text="Close Account", command=self.close_account)
         self.close_account_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
+      # Create a label and entry for account creation
+        self.create_account_label = tk.Label(self.master, text="Create account:")
+        self.create_account_label.grid(row=5, column=0, padx=10, pady=10)
+        self.create_account_entry = tk.Entry(self.master)
+        self.create_account_entry.grid(row=5, column=1, padx=10, pady=10)
+
+      
 
 
 if __name__ == "__main__":
