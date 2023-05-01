@@ -53,7 +53,7 @@ class OnlineBankingApp:
         self.withdrawal_entry.grid(row=6, column=1, padx=10, pady=10)
 
         # Create a button to withdraw funds
-        self.withdrawal_button = tk.Button(self.master, text="Withdraw", command=self)
+        self.withdrawal_button = tk.Button(self.master, text="Withdraw", command=self.withdraw_funds)
         self.withdrawal_button.grid(row=7, column=0, columnspan=2, padx=10, pady=10)
 
         # Create a label and entry for account creation
@@ -95,22 +95,46 @@ class OnlineBankingApp:
 
 
     def deposit_funds(self):
-        # Get the deposit amount from the entry field
-        deposit_amount = float(self.deposit_entry.get())
+    # Get the deposit amount from the entry field
+      deposit_amount = float(self.deposit_entry.get())
+    # Check if the deposit amount is valid (i.e., positive)
+      if deposit_amount <= 0:
+          messagebox.showerror("Error", "Deposit amount must be greater than zero.")
+          return
     
-        # Check if the deposit amount is valid (i.e., positive)
-        if deposit_amount <= 0:
-            messagebox.showerror("Error", "Deposit amount must be greater than zero.")
-            return
+    # Add the deposit amount to the account balance
+      self.current_account.balance += deposit_amount
     
-        # Add the deposit amount to the account balance
-        self.accounts[self.current_user].balance += deposit_amount
+    # Update the balance label
+      self.balance_label.config(text=f"Balance: ${self.current_account.balance:.2f}")
     
-        # Update the balance label
-        self.update_balance_label()
-    
-        # Show a success message
-        messagebox.showinfo("Success", f"Deposit of ${deposit_amount:.2f} successful.")
+    # Show a success message
+      messagebox.showinfo("Success", f"Deposit of ${deposit_amount:.2f} successful.")
+
+    def withdraw_funds(self):
+    # Get the withdrawal amount from the entry field
+     withdrawal_amount = float(self.withdrawal_entry.get())
+
+    # Check if the withdrawal amount is valid (i.e., positive and less than or equal to the account balance)
+     if withdrawal_amount <= 0:
+          messagebox.showerror("Error", "Withdrawal amount must be greater than zero.")
+          return
+
+     if withdrawal_amount > self.current_account.balance:
+          messagebox.showerror("Error", "Insufficient funds.")
+          return
+
+    # Subtract the withdrawal amount from the account balance
+     self.current_account.balance -= withdrawal_amount
+
+    # Update the balance label
+     self.balance_label.config(text=f"Balance: ${self.current_account.balance:.2f}")
+
+    # Show a success message
+     messagebox.showinfo("Success", f"Withdrawal of ${withdrawal_amount:.2f} successful.")
+
+
+
     
 
 if __name__ == "__main__":
