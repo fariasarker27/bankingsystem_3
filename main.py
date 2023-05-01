@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog
-import random
 
 class Account:
     def __init__(self, acc_num, pin, name):
@@ -78,6 +77,10 @@ class OnlineBankingApp:
       # Create a button to modify account
         self.create_modify_account_button = tk.Button(self.master, text="Modify account", command=self.modify_account)
         self.create_modify_account_button.grid(row=12, column=0, columnspan=2, padx=10, pady=10)
+
+      #Create a button to close account
+        self.create_close_account_button = tk.Button(self.master, text="Modify account", command=self.close_account)
+        self.create_close_account_button.grid(row=13, column=0, columnspan=2, padx=10, pady=10)
         
 
 
@@ -198,7 +201,46 @@ class OnlineBankingApp:
         
         account.pin = new_pin
         messagebox.showinfo("Account Modified", "Account modified successfully.")
-     
+
+    def close_account(self):
+      acc_num = self.acc_num_entry.get()
+      pin = self.pin_entry.get()
+
+      if acc_num == "" or pin == "":
+        # Empty fields
+          messagebox.showerror("Error", "Please enter both account number and PIN.")
+          return False
+
+      if acc_num not in self.accounts:
+        # Account not found
+          messagebox.showerror("Error", "Account not found.")
+          return False
+
+      account = self.accounts[acc_num]
+      if account.pin != pin:
+        # Incorrect PIN
+          messagebox.showerror("Error", "Incorrect PIN.")
+          return False
+
+    # Confirm account closure
+      confirm = messagebox.askyesno("Confirmation", "Are you sure you want to close your account?")
+
+      if confirm:
+        del self.accounts[acc_num]
+        self.acc_num_entry.delete(0, tk.END)
+        self.pin_entry.delete(0, tk.END)
+        self.balance_label.config(text="Balance: $0.00")
+        self.deposit_entry.delete(0, tk.END)
+        self.withdrawal_entry.delete(0, tk.END)
+        self.create_account_pin_entry.delete(0, tk.END)
+        self.create_account_num_entry.delete(0, tk.END)
+        self.create_account_name_entry.delete(0, tk.END)
+
+        messagebox.showinfo("Success", "Account closed successfully.")
+        return True
+      else:
+          return False
+
 
 if __name__ == "__main__":
     root = tk.Tk()
