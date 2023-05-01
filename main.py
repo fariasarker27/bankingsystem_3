@@ -56,11 +56,25 @@ class OnlineBankingApp:
         self.withdrawal_button = tk.Button(self.master, text="Withdraw", command=self.withdraw_funds)
         self.withdrawal_button.grid(row=7, column=0, columnspan=2, padx=10, pady=10)
 
-        # Create a label and entry for account creation
-        self.create_account_label = tk.Label(self.master, text="Create account:")
-        self.create_account_label.grid(row=8, column=0, padx=10, pady=10)
-        self.create_account_entry = tk.Entry(self.master)
-        self.create_account_entry.grid(row=8, column=1, padx=10, pady=10)
+        # Create a label and entry for account creation (PIN, account number)
+        self.create_account_pin_label = tk.Label(self.master, text="Create account PIN:")
+        self.create_account_pin_label.grid(row=8, column=0, padx=10, pady=10)
+        self.create_account_pin_entry = tk.Entry(self.master)
+        self.create_account_pin_entry.grid(row=8, column=1, padx=10, pady=10)
+        self.create_account_num_label= tk.Label(self.master, text="Create account number:")
+        self.create_account_num_label.grid(row=9, column=0, padx=10, pady=10)
+        self.create_account_num_entry = tk.Entry(self.master)
+        self.create_account_num_entry.grid(row=9, column=1, padx=10, pady=10)
+      # Create label and entry for name of account holder
+        self.create_account_name_label = tk.Label(self.master, text="Enter your name:")
+        self.create_account_name_label.grid(row=10, column=0, padx=10, pady=10)
+        self.create_account_name_entry = tk.Entry(self.master)
+        self.create_account_name_entry.grid(row=10, column=1, padx=10, pady=10)
+      
+        # Create a button to create account
+        self.create_account_button = tk.Button(self.master, text="Create", command=self.create_account)
+        self.create_account_button.grid(row=11, column=0, columnspan=2, padx=10, pady=10)
+        
 
 
     def validate_login(self):
@@ -134,6 +148,33 @@ class OnlineBankingApp:
      messagebox.showinfo("Success", f"Withdrawal of ${withdrawal_amount:.2f} successful.")
 
 
+    def create_account(self):
+    # Get the PIN and account number from the entry fields
+      pin = self.create_account_pin_entry.get()
+      acc_num = self.create_account_num_entry.get()
+
+    # Check if either field is empty
+      if not pin or not acc_num:
+          messagebox.showerror("Error", "Please enter both a PIN and an account number.")
+          return
+
+    # Check if the account number is already taken
+      if acc_num in self.accounts:
+          messagebox.showerror("Error", "Account number already taken.")
+          return
+
+    # Create a new account and add it to the dictionary
+      name = f"User {len(self.accounts)+1}"
+      account = Account(acc_num, pin, name)
+      self.accounts[acc_num] = account
+
+    # Clear the entry fields and show a success message
+      self.create_account_pin_entry.delete(0, tk.END)
+      self.create_account_num_entry.delete(0, tk.END)
+      messagebox.showinfo("Success", f"Account {acc_num} successfully created for {name}.")
+
+      
+      
 
     
 
