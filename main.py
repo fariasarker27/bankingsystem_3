@@ -12,7 +12,7 @@ class Account:
 class OnlineBankingApp:
     def __init__(self, master):
         self.master = master
-        self.master.title("Online Banking System")
+        self.master.title("ABC Online Banking System")
 
         self.accounts = {"123456": Account("123456", "1234", "John Doe"), "789012": Account("789012", "5678", "Jane Smith")}  # dictionary to store account information
 
@@ -74,6 +74,10 @@ class OnlineBankingApp:
         # Create a button to create account
         self.create_account_button = tk.Button(self.master, text="Create", command=self.create_account)
         self.create_account_button.grid(row=11, column=0, columnspan=2, padx=10, pady=10)
+
+      # Create a button to modify account
+        self.create_modify_account_button = tk.Button(self.master, text="Modify account", command=self.modify_account)
+        self.create_modify_account_button.grid(row=12, column=0, columnspan=2, padx=10, pady=10)
         
 
 
@@ -173,10 +177,28 @@ class OnlineBankingApp:
       self.create_account_num_entry.delete(0, tk.END)
       messagebox.showinfo("Success", f"Account {acc_num} successfully created for {name}.")
 
-      
-      
-
-    
+    def modify_account(self):
+        acc_num = simpledialog.askstring("Modify Account", "Enter account number:")
+        if acc_num == "":
+            # Empty account number
+            messagebox.showerror("Error", "Please enter an account number.")
+            return
+        
+        if acc_num not in self.accounts:
+            # Account not found
+            messagebox.showerror("Error", "Account not found.")
+            return
+        
+        account = self.accounts[acc_num]
+        new_pin = simpledialog.askstring("Modify Account", "Enter new PIN:")
+        if new_pin == "":
+            # Empty PIN
+            messagebox.showerror("Error", "Please enter a new PIN.")
+            return
+        
+        account.pin = new_pin
+        messagebox.showinfo("Account Modified", "Account modified successfully.")
+     
 
 if __name__ == "__main__":
     root = tk.Tk()
