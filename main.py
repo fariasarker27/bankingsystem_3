@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog
+import sqlite3
 
 class Account:
     def __init__(self, acc_num, pin, name):
@@ -13,7 +14,7 @@ class OnlineBankingApp:
         self.master = master
         self.master.title("ABC Online Banking System")
 
-        self.accounts = {"123456": Account("123456", "1234", "John Doe"), "789012": Account("789012", "5678", "Jane Smith")}  # dictionary to store account information
+        self.accounts = {"123456": Account("123456", "1234", "John Doe"), "789012": Account("789012", "5678", "Jane Smith")}  # dictionary to store account information (example accounts currently)
 
         # Create labels and entries for login information
         self.acc_num_label = tk.Label(self.master, text="Account number:")
@@ -66,21 +67,21 @@ class OnlineBankingApp:
         self.create_account_num_entry.grid(row=9, column=1, padx=10, pady=10)
       # Create label and entry for name of account holder
         self.create_account_name_label = tk.Label(self.master, text="Enter your name:")
-        self.create_account_name_label.grid(row=10, column=0, padx=10, pady=10)
+        self.create_account_name_label.grid(row=0, column=2, padx=10, pady=10)
         self.create_account_name_entry = tk.Entry(self.master)
-        self.create_account_name_entry.grid(row=10, column=1, padx=10, pady=10)
+        self.create_account_name_entry.grid(row=1, column=2, padx=10, pady=10)
       
         # Create a button to create account
         self.create_account_button = tk.Button(self.master, text="Create", command=self.create_account)
-        self.create_account_button.grid(row=11, column=0, columnspan=2, padx=10, pady=10)
+        self.create_account_button.grid(row=2, column=2, columnspan=2, padx=10, pady=10)
 
       # Create a button to modify account
         self.create_modify_account_button = tk.Button(self.master, text="Modify account", command=self.modify_account)
-        self.create_modify_account_button.grid(row=12, column=0, columnspan=2, padx=10, pady=10)
+        self.create_modify_account_button.grid(row=3, column=2, columnspan=2, padx=10, pady=10)
 
       #Create a button to close account
-        self.create_close_account_button = tk.Button(self.master, text="Modify account", command=self.close_account)
-        self.create_close_account_button.grid(row=13, column=0, columnspan=2, padx=10, pady=10)
+        self.create_close_account_button = tk.Button(self.master, text="Close account", command=self.close_account)
+        self.create_close_account_button.grid(row=4, column=2, columnspan=2, padx=10, pady=10)
         
 
 
@@ -116,7 +117,7 @@ class OnlineBankingApp:
 
 
     def deposit_funds(self):
-    # Get the deposit amount from the entry field
+       # Get the deposit amount from the entry field
       deposit_amount = float(self.deposit_entry.get())
     # Check if the deposit amount is valid (i.e., positive)
       if deposit_amount <= 0:
@@ -131,6 +132,7 @@ class OnlineBankingApp:
     
     # Show a success message
       messagebox.showinfo("Success", f"Deposit of ${deposit_amount:.2f} successful.")
+
 
     def withdraw_funds(self):
     # Get the withdrawal amount from the entry field
