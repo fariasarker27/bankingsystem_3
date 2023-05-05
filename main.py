@@ -2,6 +2,11 @@ import tkinter as tk
 from tkinter import messagebox, simpledialog
 import sqlite3
 
+connection = sqlite3.connect("OnlineBankingApp")
+connection.execute("CREATE TABLE IF NOT EXISTS My_library (account_number INTEGER PRIMARY KEY, PIN INTEGER, name STRING);")
+connection.execute("INSERT INTO My_library (PIN, account_number, name) "
+             "VALUES (1234, 123456,'Mary Lee'), (5678, 567890, 'Tim Smith'), (2355, 234567, 'Jane Doe')")
+
 class Account:
     def __init__(self, acc_num, pin, name):
         self.acc_num = acc_num
@@ -13,8 +18,6 @@ class OnlineBankingApp:
     def __init__(self, master):
         self.master = master
         self.master.title("ABC Online Banking System")
-
-        self.accounts = {"123456": Account("123456", "1234", "John Doe"), "789012": Account("789012", "5678", "Jane Smith")}  # dictionary to store account information (example accounts currently)
 
         # Create labels and entries for login information
         self.acc_num_label = tk.Label(self.master, text="Account number:")
@@ -58,36 +61,40 @@ class OnlineBankingApp:
 
         # Create a label and entry for account creation (PIN, account number)
         self.create_account_pin_label = tk.Label(self.master, text="Create account PIN:")
-        self.create_account_pin_label.grid(row=8, column=0, padx=10, pady=10)
+        self.create_account_pin_label.grid(row=0, column=2, padx=10, pady=10)
         self.create_account_pin_entry = tk.Entry(self.master)
-        self.create_account_pin_entry.grid(row=8, column=1, padx=10, pady=10)
+        self.create_account_pin_entry.grid(row=0, column=3, padx=10, pady=10)
         self.create_account_num_label= tk.Label(self.master, text="Create account number:")
-        self.create_account_num_label.grid(row=9, column=0, padx=10, pady=10)
+        self.create_account_num_label.grid(row=1, column=2, padx=10, pady=10)
         self.create_account_num_entry = tk.Entry(self.master)
-        self.create_account_num_entry.grid(row=9, column=1, padx=10, pady=10)
+        self.create_account_num_entry.grid(row=1, column=3, padx=10, pady=10)
       # Create label and entry for name of account holder
         self.create_account_name_label = tk.Label(self.master, text="Enter your name:")
-        self.create_account_name_label.grid(row=0, column=2, padx=10, pady=10)
+        self.create_account_name_label.grid(row=2, column=2, padx=10, pady=10)
         self.create_account_name_entry = tk.Entry(self.master)
-        self.create_account_name_entry.grid(row=1, column=2, padx=10, pady=10)
+        self.create_account_name_entry.grid(row=2, column=3, padx=10, pady=10)
       
         # Create a button to create account
-        self.create_account_button = tk.Button(self.master, text="Create", command=self.create_account)
-        self.create_account_button.grid(row=2, column=2, columnspan=2, padx=10, pady=10)
+        self.create_account_button = tk.Button(self.master, text="Create account", command=self.create_account)
+        self.create_account_button.grid(row=3, column=2, columnspan=2, padx=10, pady=10)
 
       # Create a button to modify account
         self.create_modify_account_button = tk.Button(self.master, text="Modify account", command=self.modify_account)
-        self.create_modify_account_button.grid(row=3, column=2, columnspan=2, padx=10, pady=10)
+        self.create_modify_account_button.grid(row=4, column=2, columnspan=2, padx=10, pady=10)
 
       #Create a button to close account
         self.create_close_account_button = tk.Button(self.master, text="Close account", command=self.close_account)
-        self.create_close_account_button.grid(row=4, column=2, columnspan=2, padx=10, pady=10)
+        self.create_close_account_button.grid(row=5, column=2, columnspan=2, padx=10, pady=10)
         
 
 
     def validate_login(self):
         acc_num = self.acc_num_entry.get()
         pin = self.pin_entry.get()
+        connection = sqlite3.connect("OnlineBankingApp")
+        connection.execute("CREATE TABLE IF NOT EXISTS My_library (account_number INTEGER PRIMARY KEY, PIN INTEGER, name STRING);")
+        connection.execute("INSERT INTO My_library (PIN, account_number, name) "
+             "VALUES (1234, 123456,'Mary Lee'), (5678, 567890, 'Tim Smith'), (2355, 234567, 'Jane Doe')")
     
         if acc_num == "" or pin == "":
             # Empty fields
@@ -117,6 +124,10 @@ class OnlineBankingApp:
 
 
     def deposit_funds(self):
+      connection = sqlite3.connect("OnlineBankingApp")
+      connection.execute("CREATE TABLE IF NOT EXISTS My_library (account_number INTEGER PRIMARY KEY, PIN INTEGER, name STRING);")
+      connection.execute("INSERT INTO My_library (PIN, account_number, name) "
+             "VALUES (1234, 123456,'Mary Lee'), (5678, 567890, 'Tim Smith'), (2355, 234567, 'Jane Doe')")
        # Get the deposit amount from the entry field
       deposit_amount = float(self.deposit_entry.get())
     # Check if the deposit amount is valid (i.e., positive)
@@ -158,9 +169,14 @@ class OnlineBankingApp:
 
 
     def create_account(self):
+      connection = sqlite3.connect("OnlineBankingApp")
+      connection.execute("CREATE TABLE IF NOT EXISTS My_library (account_number INTEGER PRIMARY KEY, PIN INTEGER, name STRING);")
+      connection.execute("INSERT INTO My_library (PIN, account_number, name) "
+             "VALUES (1234, 123456,'Mary Lee'), (5678, 567890, 'Tim Smith'), (2355, 234567, 'Jane Doe')")
     # Get the PIN and account number from the entry fields
       pin = self.create_account_pin_entry.get()
       acc_num = self.create_account_num_entry.get()
+      name = self.create_account_name_entry.get()
 
     # Check if either field is empty
       if not pin or not acc_num:
@@ -173,9 +189,10 @@ class OnlineBankingApp:
           return
 
     # Create a new account and add it to the dictionary
-      name = f"User {len(self.accounts)+1}"
-      account = Account(acc_num, pin, name)
-      self.accounts[acc_num] = account
+      connection.execute('INSERT INTO My_library (account_number, PIN, name)'
+             "VALUES (0987, '098765','John Thomas')")
+      connection.commit()
+      connection.close()
 
     # Clear the entry fields and show a success message
       self.create_account_pin_entry.delete(0, tk.END)
@@ -201,7 +218,9 @@ class OnlineBankingApp:
             messagebox.showerror("Error", "Please enter a new PIN.")
             return
         
-        account.pin = new_pin
+
+      
+
         messagebox.showinfo("Account Modified", "Account modified successfully.")
 
     def close_account(self):
@@ -228,15 +247,11 @@ class OnlineBankingApp:
       confirm = messagebox.askyesno("Confirmation", "Are you sure you want to close your account?")
 
       if confirm:
-        del self.accounts[acc_num]
-        self.acc_num_entry.delete(0, tk.END)
-        self.pin_entry.delete(0, tk.END)
-        self.balance_label.config(text="Balance: $0.00")
-        self.deposit_entry.delete(0, tk.END)
-        self.withdrawal_entry.delete(0, tk.END)
-        self.create_account_pin_entry.delete(0, tk.END)
-        self.create_account_num_entry.delete(0, tk.END)
-        self.create_account_name_entry.delete(0, tk.END)
+        connection.execute("DELETE from My_library WHERE account_number = x;")
+        connection.execute("DELETE from My_library WHERE PIN = 1234 ;")
+        connection.execute("DELETE from My_library WHERE name = 'Jane Doe'")
+        connection.commit()
+        connection.close()
 
         messagebox.showinfo("Success", "Account closed successfully.")
         return True
