@@ -4,7 +4,7 @@ import sqlite3
 
 connection = sqlite3.connect("OnlineBankingApp")
 cursor = connection.cursor()
-cursor.execute('CREATE TABLE IF NOT EXISTS My_library (account_number INTEGER PRIMARY KEY, PIN INTEGER, name TEXT, balance_amt REAL)')
+cursor.execute('CREATE TABLE IF NOT EXISTS My_library (account_number INTEGER , PIN INTEGER, name TEXT, balance_amt REAL)')
 cursor.execute("INSERT OR IGNORE INTO My_library (account_number, PIN, name, balance_amt) VALUES (123456, 1234, 'Mary Lee', 2.00)")
 cursor.execute("INSERT OR IGNORE INTO My_library (account_number, PIN, name, balance_amt) VALUES (567890, 5678, 'Tim Smith', 10000.00)")
 cursor.execute("INSERT OR IGNORE INTO My_library (account_number, PIN, name, balance_amt) VALUES (234567, 2355, 'Jane Doe', 23.45)")
@@ -135,6 +135,7 @@ class OnlineBankingApp:
             cursor = connection.cursor()
             cursor.execute("UPDATE My_library SET balance_amt = balance_amt + ? WHERE account_number = ?", (deposit_amount, acc_num))
             connection.commit()
+            self.deposit_entry.delete(0, tk.END)
             messagebox.showinfo("Sucess", "Deposit sucessful!")
         except sqlite3.Error as error:
             messagebox.showerror("Error", "Error connection to SQLite.", error)
@@ -168,6 +169,7 @@ class OnlineBankingApp:
             cursor = connection.cursor()
             cursor.execute("UPDATE My_library SET balance_amt = balance_amt - ? WHERE account_number = ?", (withdraw_amount, acc_num))
             connection.commit()
+            self.withdrawal_entry.delete(0, tk.END)
             messagebox.showinfo("Sucess", "Withdrawal sucessful!")
         except sqlite3.Error as error:
             messagebox.showerror("Error", "Error connection to SQLite.", error)
@@ -191,92 +193,110 @@ class OnlineBankingApp:
             return
   
       # Check if the account number is already taken
-        if acc_num in self.accounts:
+        cursor = connection.execute("SELECT account_number FROM My_library")
+        result = cursor.fetchone()
+        if acc_num in result:
             messagebox.showerror("Error", "Account number already taken.")
             return
   
       # Create a new account and add it to the dictionary
-        connection.execute('INSERT INTO My_library (account_number, PIN, name)'
-               "VALUES (pin, acc_num, name)")
-        connection.commit()
-        connection.close()
+        try:
+         connection.execute('INSERT INTO My_library (account_number, PIN, name) '
+                       'VALUES (?, ?, ?)', (acc_num, pin, name))
+         connection.commit()
+         messagebox.showinfo("Success", "Account created successfully!")
+        except sqlite3.IntegrityError:
+          messagebox.showerror("Error", "Account number already taken.")
+          return
+
   
       # Clear the entry fields and show a success message
-        self.create_account_pin_entry.delete(0, tk.END)
+        self.create_account_name_entry.delete(0, tk.END)
         self.create_account_num_entry.delete(0, tk.END)
+        self.create_account_pin_entry.delete(0, tk.END)
+
+
         messagebox.showinfo("Success", f"Account {acc_num} successfully created for {name}.")
   
     def modify_account(self):
-          acc_num = simpledialog.askstring("Modify Account", "Enter account number:")
-          if acc_num == "":
-              # Empty account number
-              messagebox.showerror("Error", "Please enter an account number.")
-              return
-          
-          if acc_num not in self.accounts:
-              # Account not found
-              messagebox.showerror("Error", "Account not found.")
-              return
-          
-          account = self.accounts[acc_num]
-          new_pin = simpledialog.askstring("Modify Account", "Enter new PIN:")
-          if new_pin == "":
-              # Empty PIN
-              messagebox.showerror("Error", "Please enter a new PIN.")
-              return False
-          self.current_account = account
-          self.balance_label.config(text=f"Balance: ${self.current_account.balance:.2f}")
-          self.deposit_entry.delete(0, tk.END)
-          self.withdrawal_entry.delete(0, tk.END)
-          self.create_account_entry.delete(0, tk.END)
-          messagebox.showinfo("Success", f"Welcome, {self.current_account.name}!")
-          return True
-  
-          messagebox.showinfo("Account Modified", "Account modified successfully.")
+      acc_num = self.acc_num_entry.get()
+      pin = self.pin_entry.get()
+      
+      if acc_num == "" or pin == "":
+          messagebox.showerror("Error", "Please enter both account number and PIN.")
+          return
+      
+      # check if account exists
+      cursor.execute(f"SELECT * FROM My_library WHERE account_number={acc_num} and PIN={pin}")
+      account_data = cursor.fetchone()
+      if not account_data:
+          messagebox.showerror("Error", "Invalid account number or PIN.")
+          return
+      
+      # retrieve current balance
+      current_balance = account_data[3]
+      
+      # get new PIN from user input
+      new_pin = simpledialog.askinteger("Modify Account", "Enter new PIN:")
+      if new_pin is None:
+          return
+      
+      # get new account number from user input
+      new_acc_num = simpledialog.askinteger("Modify Account", "Enter new account number:")
+      if new_acc_num is None:
+          return
+      
+      # update database with new PIN and account number
+      cursor.execute("UPDATE My_library SET account_number= ?, PIN= ? WHERE account_number= ?", (new_acc_num, new_pin, acc_num,))
+      connection.commit()
+      
+      # display success message
+      messagebox.showinfo("Success", f"Account updated. New account number: {new_acc_num}. New PIN: {new_pin}.")
   
     def close_account(self):
-        acc_num = self.acc_num_entry.get()
-        pin = self.pin_entry.get()
-  
-        if acc_num == "" or pin == "":
-          # Empty fields
-            messagebox.showerror("Error", "Please enter both account number and PIN.")
-            return False
-  
-        if acc_num not in self.accounts:
-          # Account not found
-            messagebox.showerror("Error", "Account not found.")
-            return False
-  
-        account = self.accounts[acc_num]
-        if account.pin != pin:
-          # Incorrect PIN
-            messagebox.showerror("Error", "Incorrect PIN.")
-            return False
-  
-      # Confirm account closure
-        confirm = messagebox.askyesno("Confirmation", "Are you sure you want to close your account?")
-  
-        if confirm:
-          connection.execute("DELETE from My_library WHERE account_number = ?;")
-          connection.execute("DELETE from My_library WHERE PIN = ? ;")
-          connection.execute("DELETE from My_library WHERE name = ?")
-          connection.execute("DELETE from My_library WHERE balance_amt = ?")
-          connection.commit()
-          
-  
-          messagebox.showinfo("Success", "Account closed successfully.")
-          return True
-        else:
-            return False
+          acc_num = self.acc_num_entry.get()
+          pin = self.pin_entry.get()
+    
+          if acc_num == "" or pin == "":
+            # Empty fields
+              messagebox.showerror("Error", "Please enter both account number and PIN.")
+              return False
 
+          cursor.execute(f"SELECT * FROM My_library WHERE account_number={acc_num} and PIN={pin}")
+          account_data = cursor.fetchone()
+          if not account_data:
+            messagebox.showerror("Error", "Invalid account number or PIN.")
+            return
+          account = self.accounts[acc_num]
+          if account.pin != pin:
+            # Incorrect PIN
+              messagebox.showerror("Error", "Incorrect PIN.")
+              return False
+    
+        # Confirm account closure
+          confirm = messagebox.askyesno("Confirmation", "Are you sure you want to close your account?")
+    
+          if confirm:
+            connection.execute("DELETE from My_library WHERE account_number = ?;")
+            connection.execute("DELETE from My_library WHERE PIN = ? ;")
+            connection.execute("DELETE from My_library WHERE name = ?")
+            connection.execute("DELETE from My_library WHERE balance_amt = ?")
+            connection.commit()
+            
+    
+            messagebox.showinfo("Success", "Account closed successfully.")
+            return True
+          else:
+              return False
+  
     def update_balance_label(self):
-        # Get the current balance from the database
-        cursor.execute("SELECT balance_amt FROM My_library WHERE account_number = ?", (self.acc_num,))
-        balance = cursor.fetchone()[0]
-
-        # Update the balance label
-        self.balance_label.config(text="Balance: ${:.2f}".format(balance))
+    # Get the current balance from the database
+      self.cursor.execute("SELECT balance_amt FROM My_library WHERE account_number = ?", (self.acc_num,))
+      balance = self.cursor.fetchone()[0]
+  
+      # Update the balance label
+      self.balance_label.config(text="Balance: ${:.2f}".format(balance))
+  
   
 
 if __name__ == "__main__":
