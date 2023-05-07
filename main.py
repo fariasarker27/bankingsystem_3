@@ -178,7 +178,7 @@ class OnlineBankingApp:
                 connection.close()
         # Update the balance label
         self.update_balance_label()
-  
+        messagebox.showinfo("Success", "Withdrawal sucessful!")
   
     def create_account(self):
         connection = sqlite3.connect("OnlineBankingApp")
@@ -254,50 +254,43 @@ class OnlineBankingApp:
       messagebox.showinfo("Success", f"Account updated. New account number: {new_acc_num}. New PIN: {new_pin}.")
   
     def close_account(self):
-          acc_num = self.acc_num_entry.get()
-          pin = self.pin_entry.get()
-    
-          if acc_num == "" or pin == "":
-            # Empty fields
-              messagebox.showerror("Error", "Please enter both account number and PIN.")
-              return False
-
-          cursor.execute(f"SELECT * FROM My_library WHERE account_number={acc_num} and PIN={pin}")
-          account_data = cursor.fetchone()
-          if not account_data:
-            messagebox.showerror("Error", "Invalid account number or PIN.")
-            return
-          account = self.accounts[acc_num]
-          if account.pin != pin:
-            # Incorrect PIN
-              messagebox.showerror("Error", "Incorrect PIN.")
-              return False
-    
-        # Confirm account closure
-          confirm = messagebox.askyesno("Confirmation", "Are you sure you want to close your account?")
-    
-          if confirm:
-            connection.execute("DELETE from My_library WHERE account_number = ?;")
-            connection.execute("DELETE from My_library WHERE PIN = ? ;")
-            connection.execute("DELETE from My_library WHERE name = ?")
-            connection.execute("DELETE from My_library WHERE balance_amt = ?")
-            connection.commit()
-            
-    
-            messagebox.showinfo("Success", "Account closed successfully.")
-            return True
-          else:
-              return False
+      acc_num = self.acc_num_entry.get()
+      pin = self.pin_entry.get()
+      
+      if acc_num == "" or pin == "":
+          messagebox.showerror("Error", "Please enter both account number and PIN.")
+          return
+      
+      # check if account exists
+      cursor.execute("SELECT * FROM My_library WHERE account_number=? and PIN=?", (acc_num, pin))
+      account_data = cursor.fetchone()
+      if not account_data:
+          messagebox.showerror("Error", "Invalid account number or PIN.")
+          return
+      
+      # confirm account closure
+      confirm = messagebox.askyesno("Confirm Closure", "Are you sure you want to close this account?")
+      if confirm:
+          name = account_data[1]
+          balance_amt = account_data[3]
+          connection.execute("DELETE FROM My_library WHERE account_number=?", (acc_num,))
+          connection.execute("DELETE FROM My_library WHERE name=?",(name))
+          messagebox.showinfo("Success", "Account closed successfully.")
+          connection.commit()
+          self.acc_num_entry.delete(0, tk.END)
+          self.pin_entry.delete(0, tk.END)
+          self.balance_label.config(text="Balance: $0.00")
+          return True
   
     def update_balance_label(self):
-    # Get the current balance from the database
-      self.cursor.execute("SELECT balance_amt FROM My_library WHERE account_number = ?", (self.acc_num,))
-      balance = self.cursor.fetchone()[0]
-  
-      # Update the balance label
-      self.balance_label.config(text="Balance: ${:.2f}".format(balance))
-  
-  
+      # Get the current balance from the database
+        cursor.execute("SELECT balance_amt FROM My_library WHERE account_number = ?", (self.acc_num,))
+        balance = self.cursor.fetchone()[0]
+    
+        # Update the balance label
+        self.balance_label.config(text="Balance: ${:.2f}".format(balance))
+    
+    
 
 if __name__ == "__main__":
     root = tk.Tk()
