@@ -162,6 +162,8 @@ class OnlineBankingApp:
             messagebox.showerror("Error", "Withdrawal amount must be positive.")
             return
         acc_num = self.acc_num_entry.get()
+        connection = sqlite3.connect("OnlineBankingApp")
+        cursor = connection.cursor()
         cursor = connection.execute(f"SELECT * FROM My_library WHERE account_number={acc_num}")
         
         # Update the balance in the database
@@ -178,8 +180,7 @@ class OnlineBankingApp:
                 connection.close()
         # Update the balance label
         self.update_balance_label()
-        messagebox.showinfo("Success", "Withdrawal sucessful!")
-  
+        
     def create_account(self):
         connection = sqlite3.connect("OnlineBankingApp")
       # Get the PIN and account number from the entry fields
@@ -283,12 +284,18 @@ class OnlineBankingApp:
           return True
   
     def update_balance_label(self):
-      # Get the current balance from the database
-        cursor.execute("SELECT balance_amt FROM My_library WHERE account_number = ?", (self.acc_num,))
-        balance = self.cursor.fetchone()[0]
-    
-        # Update the balance label
-        self.balance_label.config(text="Balance: ${:.2f}".format(balance))
+    # Get the current balance from the database
+      connection = sqlite3.connect("OnlineBankingApp")
+      cursor = connection.cursor()
+      acc_num = self.acc_num_entry.get()
+      cursor.execute("SELECT balance_amt FROM My_library WHERE account_number = ?", (acc_num,))
+      balance = cursor.fetchone()[0]
+      connection.close()
+      
+      # Update the balance label
+      self.balance_label.config(text="Balance: ${:.2f}".format(balance))
+
+
     
     
 
